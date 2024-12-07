@@ -1,1 +1,0 @@
-export const SENSOR_DATA_MAPPINGS = { 'Message': 'lastmessage', 'Status': 'statustext', 'Status (Raw)': 'statusid' };

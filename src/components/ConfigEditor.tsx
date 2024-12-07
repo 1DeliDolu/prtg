@@ -1,100 +1,99 @@
-import React, { ChangeEvent } from 'react';
-import { InlineField, Input, SecretInput} from '@grafana/ui';
+import React, { PureComponent, ChangeEvent } from 'react';
+import { Field, Input } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { MyDataSourceOptions, MySecureJsonData } from '../types';
-import "../css/ConfigEditor.css"
+import { MyDataSourceOptions } from '../types';
 
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, MySecureJsonData> { }
+interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> { }
 
-export function ConfigEditor(props: Props) {
-  const { onOptionsChange, options } = props;
-  const { jsonData, secureJsonFields, secureJsonData } = options;
+interface State { }
 
-  const onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onOptionsChange({
-      ...options,
-      jsonData: {
-        ...jsonData,
-        path: event.target.value,
-      },
-    });
+export class ConfigEditor extends PureComponent<Props, State> {
+  onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      path: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
   };
 
-  // Secure field (only sent to the backend)
-  const onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onOptionsChange({
-      ...options,
-      secureJsonData: {
-        apiKey: event.target.value,
-      },
-    });
-  };
+  onHostnameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      hostname: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  }
 
-  const onResetAPIKey = () => {
-    onOptionsChange({
-      ...options,
-      secureJsonFields: {
-        ...options.secureJsonFields,
-        apiKey: false,
-      },
-      secureJsonData: {
-        ...options.secureJsonData,
-        apiKey: '',
-      },
-    });
-  };
+  onUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      username: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  }
 
-  return (
-    <>
-      <div className='config-editor-div'>
-        <div>
-          <InlineField label="Path" labelWidth={20} interactive tooltip={'Json field returned to frontend'}>
-            <Input
-              id="config-editor-path"
-              onChange={onPathChange}
-              value={jsonData.path}
-              placeholder="Enter the path, e.g. /api/v1"
-              width={40}
-            />
-          </InlineField>
-        </div>
-        <div>
-          <InlineField label="Benutzername" labelWidth={20} interactive tooltip={'Bitte geben Sie Ihren Benutzernamen ein'}>
-            <Input
-              id="config-editor-benutzer"
-              onChange={onPathChange}
-              value={jsonData.user}
-              placeholder="Benutzername"
-              width={40}
-            />
-          </InlineField>
-        </div>
-        <div>
-        <InlineField label="Password" labelWidth={20} interactive tooltip={'Bitte geben Sie Ihr Password ein'}>
+  onPassHashChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      passhash: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  }
+
+  render() {
+    const { options } = this.props;
+    const { jsonData } = options;
+    return (
+      <div className="gf-form-group">
+        <Field
+          label="Path"
+          description="JSON field returned to frontend"
+        >
           <Input
-            id="config-editor-password"
-            onChange={onPathChange}
-            value={jsonData.user}
-            placeholder="Password"
+            onChange={this.onPathChange}
+            value={jsonData.path || ''}
+            placeholder="Enter the path, e.g. /api/v1"
             width={40}
           />
-        </InlineField>
-      </div>
-      <div >
-        <InlineField label="API Key" labelWidth={20} interactive tooltip={'Secure json field (backend only)'}>
-          <SecretInput
-            required
-            id="config-editor-api-key"
-            isConfigured={secureJsonFields.apiKey}
-            value={secureJsonData?.apiKey}
-            placeholder="Enter your API key"
+        </Field>
+        <Field
+          label="Hostname"
+          description="JSON field returned to frontend"
+        >
+          <Input
+            onChange={this.onHostnameChange}
+            value={jsonData.hostname || ''}
+            placeholder="Enter the hostname"
             width={40}
-            onReset={onResetAPIKey}
-            onChange={onAPIKeyChange}
           />
-        </InlineField>
+        </Field>
+        <Field
+          label="Username"
+          description="JSON field returned to frontend"
+        >
+          <Input
+            onChange={this.onUsernameChange}
+            value={jsonData.username || ''}
+            placeholder="Enter the username"
+            width={40}
+          />
+        </Field>
+        <Field
+          label="Passhash"
+          description="JSON field returned to frontend"
+        >
+          <Input
+            onChange={this.onPassHashChange}
+            value={jsonData.passhash || ''}
+            placeholder="Enter the passhash"
+            width={40}
+          />
+        </Field>
       </div>
-    </div >
-    </>
-  );
+    );
+  }
 }
