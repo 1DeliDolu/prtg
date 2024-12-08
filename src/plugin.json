@@ -1,18 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "Et",
+  "name": "PRTG&GRAFANA",
   "id": "del-et-datasource",
   "metrics": true,
   "info": {
     "description": "",
     "author": {
-      "name": "Del"
+      "name": "Musta"
     },
     "keywords": ["datasource"],
     "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
+      "small": "img/svg.svg",
+      "large": "img/svg.svg"
     },
     "links": [],
     "screenshots": [],

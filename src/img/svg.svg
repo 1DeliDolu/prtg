@@ -1,0 +1,12 @@
+<svg width="1000" height="768" xmlns="http://www.w3.org/2000/svg" style="vector-effect: non-scaling-stroke;" stroke="null">
+ <g stroke="null">
+  <title stroke="null">Layer 1</title>
+  <text stroke="#000" filter="url(#svg_1_blur)" fill="#000000" stroke-width="0" x="195.15619" y="144.05227" id="svg_1" font-size="24" font-family="Noto Sans JP" text-anchor="start" xml:space="preserve" transform="rotate(-0.111022 631.388 264.432) matrix(23.5033 0 0 13.375 -4112.29 -1554.09)">P</text>
+  <text stroke="#000" transform="matrix(15.1978 0 0 11.0141 -1833.54 -1327.38)" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_3" y="143.78986" x="143.04661" stroke-width="0" fill="#000000">G</text>
+ </g>
+ <defs style="vector-effect: non-scaling-stroke;" stroke="null">
+  <filter style="vector-effect: non-scaling-stroke;" stroke="null" id="svg_1_blur">
+   <feGaussianBlur style="vector-effect: non-scaling-stroke;" stroke="null" stdDeviation="0" in="SourceGraphic"/>
+  </filter>
+ </defs>
+</svg>
