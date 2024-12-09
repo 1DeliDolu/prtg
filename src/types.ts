@@ -471,6 +471,7 @@ export interface PrtgQuery extends DataQuery {
   selectedDevice: SelectableValue;
   selectedSensor: SelectableValue;
   tableOption: SelectableValue;
+  selectedChannel: SelectableValue;
   messageFilterDrel?: SelectableValue;
   tableColumnItems?: SelectableValue[];
   rawURI: string,
@@ -483,6 +484,7 @@ export const defaultPrtgQuery: Partial<PrtgQuery> = {
   selectedGroup: { label: "Choose Group", value: "0" },
   selectedDevice: { label: "Choose Device", value: "0" },
   selectedSensor: { label: "Choose Sensor", value: "0" },
+  selectedChannel: { label: "Choose Channel", value: "0" },
   messageFilterDrel: messageFilterDrelList[0],
   rawURI: "",
   rawQuerytext: "",
@@ -508,6 +510,7 @@ export interface ApiResponse {
     devices?: Array<{ device: string; objid: string }>;
     sensors?: Array<{ sensor: string; objid: string }>;
     items?: Array<{ name: string; unit: string }>;
+    hosts?: Array<{ host: string; objid: string }>;
     histdata?: Array<{ datetime: string;[key: string]: any }>;
   };
 }

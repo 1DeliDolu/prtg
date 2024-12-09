@@ -1,7 +1,8 @@
 import React, { PureComponent, ChangeEvent } from 'react';
-import { Field, Input } from '@grafana/ui';
+import { Field, Input, FieldSet } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions } from '../types';
+import '../css/ConfigEditor.css';
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> { }
 
@@ -49,50 +50,54 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { jsonData } = options;
     return (
       <div className="gf-form-group">
-        <Field
-          label="Path"
-          description="JSON field returned to frontend"
-        >
-          <Input
-            onChange={this.onPathChange}
-            value={jsonData.path || ''}
-            placeholder="Enter the path, e.g. /api/v1"
-            width={40}
-          />
-        </Field>
-        <Field
-          label="Hostname"
-          description="JSON field returned to frontend"
-        >
-          <Input
-            onChange={this.onHostnameChange}
-            value={jsonData.hostname || ''}
-            placeholder="Enter the hostname"
-            width={40}
-          />
-        </Field>
-        <Field
-          label="Username"
-          description="JSON field returned to frontend"
-        >
-          <Input
-            onChange={this.onUsernameChange}
-            value={jsonData.username || ''}
-            placeholder="Enter the username"
-            width={40}
-          />
-        </Field>
-        <Field
-          label="Passhash"
-          description="JSON field returned to frontend"
-        >
-          <Input
-            onChange={this.onPassHashChange}
-            value={jsonData.passhash || ''}
-            placeholder="Enter the passhash"
-            width={40}
-          />
-        </Field>
+        <FieldSet label="General Settings">
+          <Field
+            label="Path"
+            description="JSON field returned to frontend"
+          >
+            <Input
+              onChange={this.onPathChange}
+              value={jsonData.path || ''}
+              placeholder="Enter the path, e.g. /api/v1"
+              width={40}
+            />
+          </Field>
+          <Field
+            label="Hostname"
+            description="JSON field returned to frontend"
+          >
+            <Input
+              onChange={this.onHostnameChange}
+              value={jsonData.hostname || ''}
+              placeholder="Enter the hostname"
+              width={40}
+            />
+          </Field>
+        </FieldSet>
+        <FieldSet label="Authentication">
+          <Field
+            label="Username"
+            description="JSON field returned to frontend"
+          >
+            <Input
+              onChange={this.onUsernameChange}
+              value={jsonData.username || ''}
+              placeholder="Enter the username"
+              width={40}
+            />
+          </Field>
+          <Field
+            label="Passhash"
+            description="JSON field returned to frontend"
+          >
+            <Input
+              onChange={this.onPassHashChange}
+              value={jsonData.passhash || ''}
+              placeholder="Enter the passhash"
+              width={40}
+            />
+          </Field>
+        </FieldSet>
       </div>
     );
   }

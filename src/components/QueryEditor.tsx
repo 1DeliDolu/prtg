@@ -1,14 +1,63 @@
 import defaults from 'lodash/defaults';
 
 import React, { PureComponent, ChangeEvent } from 'react';
-import { Input, FieldSet, CascaderOption, Label, Select, QueryField, TypeaheadInput, TypeaheadOutput, CompletionItemGroup, CompletionItem, SuggestionsState, Tooltip } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue, DataSourceApi } from '@grafana/data';
+import {
+  Input,
+  FieldSet,
+  CascaderOption,
+  Label,
+  Select,
+  QueryField,
+  TypeaheadInput,
+  TypeaheadOutput,
+  CompletionItemGroup,
+  CompletionItem,
+  SuggestionsState,
+  Tooltip
+} from '@grafana/ui';
+
+import {
+  QueryEditorProps,
+  SelectableValue,
+  DataSourceApi
+} from '@grafana/data';
 import { DataSource } from '../DataSource';
-import { MyQuery, MyDataSourceOptions, methodList, tableOptions, defaultColumns, sensorColumns, deviceColumns, groupColumns, probeColumns } from '../types';
+import {
+  MyQuery,
+  MyDataSourceOptions,
+  methodList,
+  tableOptions,
+  defaultColumns,
+  sensorColumns,
+  deviceColumns,
+  groupColumns,
+  probeColumns
+} from '../types';
+
 import { getDataSourceSrv } from '@grafana/runtime';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
-
+const getTargetDefaults = () => ({
+  group: { name: "" },
+  device: { name: "" },
+  sensor: { name: "" },
+  channel: { name: "" },
+  host: { name: "" },
+  raw: { uri: "", queryString: "" },
+  functions: [],
+  options: {
+    mode: {
+      name: "Metrics",
+      value: 0,
+      filterProperty: {},
+      textValueFrom: {},
+      textProperty: {}
+    },
+    includeSensorName: false,
+    includeDeviceName: false
+  },
+ 
+});
 interface State {
   method: string,
   tableOption: string,
@@ -19,8 +68,18 @@ interface State {
   historicInterval?: number,
   tableFilterItemList?: SelectableValue[],
   tableColumnItemList?: SelectableValue[],
+  historichHostList?: SelectableValue[],
   rawURI?: string,
   rawQueryText?: string,
+  host?: { label: string, id: string },
+  metric: {
+    propertyList: Array<{ name: string, visible_name: string }>;
+    textValueFromList: Array<{ name: string, visible_name: string }>;
+  };
+  editorModes: {
+    [key: number]: { name: string, value: number }
+  };
+  
 }
 
 export class QueryEditor extends PureComponent<Props, State> {
@@ -28,10 +87,12 @@ export class QueryEditor extends PureComponent<Props, State> {
   historicDeviceList: CompletionItem[] = [];
   historicSensorList: CompletionItem[] = [];
   historicChannelList: SelectableValue[] = [];
+  historichHostList: SelectableValue[] = [];
+  hostList: SelectableValue[] = [];
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props);
-    const query = defaults(this.props.query);
+    const query = defaults(this.props.query, getTargetDefaults());
 
     const methodCurrent = methodList.find(item => item.value === query.method);
     const tableOptionsCurrent = tableOptions.find(item => item.value === query.tableOption);
@@ -56,7 +117,32 @@ export class QueryEditor extends PureComponent<Props, State> {
       tableColumnItemList: tableColumnItems,
       tableFilterItemList: tableFilterItems,
       rawQueryText: rawQueryText,
+
       rawURI: rawURI,
+      metric: {
+        propertyList: [
+          { name: "tags", visible_name: "Tags" },
+          { name: "active", visible_name: "Active" },
+          { name: "status", visible_name: "Status" },
+          { name: "status_raw", visible_name: "Status (raw)" },
+          { name: "message_raw", visible_name: "Message" },
+          { name: "priority", visible_name: "Priority" }
+
+        ],
+        textValueFromList: [
+          { name: "group", visible_name: "Group" },
+          { name: "device", visible_name: "Device" },
+          { name: "sensor", visible_name: "Sensor" },
+          { name: "channel", visible_name: "Channel" },
+          { name: "host", visible_name: "Host" }
+
+        ]
+      },
+      editorModes: {
+        1: { name: "Metrics", value: 1 },
+        2: { name: "Text", value: 2 },
+        3: { name: "Raw", value: 3 }
+      }
     };
   }
 
@@ -96,6 +182,8 @@ export class QueryEditor extends PureComponent<Props, State> {
       }}>
         <Label>URI:</Label>
         <Input onChange={(e: ChangeEvent<HTMLInputElement>) => this.RawURIChange(e.target.value)} value={this.state.rawURI} />
+        {/* burdan nasil ikinci satira ekleyebilirim */}
+        <div>g</div>
         <Label>Query Text:</Label>
         <Input onChange={(e: ChangeEvent<HTMLInputElement>) => this.RawQueryTextChange(e.target.value)} value={this.state.rawQueryText} />
       </div>
@@ -135,6 +223,7 @@ export class QueryEditor extends PureComponent<Props, State> {
             onWillApplySuggestion={this.willApplySuggestion}
           />
         </div>
+        <br />
         <Label style={{ width: '20%' }}>Filter:</Label>
         <Select isMulti={true} onChange={(e) => this.tableFilterOptionsChange(e)} options={this.getTableFilterItemsOptions()} value={this.props.query.tableFilterItemList} />
         <Label style={{ width: '20%' }}>Columns:</Label>
@@ -144,7 +233,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   getTableColumnOptions = () => {
-    var ColOpt: SelectableValue[] = defaultColumns;
+    let ColOpt: SelectableValue[] = defaultColumns;
     switch (this.state.tableOption) {
       case "sensor":
         ColOpt = [...ColOpt, ...sensorColumns];
@@ -237,9 +326,9 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   getHistoricChannelOptions = () => {
-    var ChannelSelectableValues: SelectableValue[] = [];
+    let ChannelSelectableValues: SelectableValue[] = [];
     this.historicChannelList = [];
-    var sensorId = this.state.historicSensor ? this.state.historicSensor.id : "0";
+    let sensorId = this.state.historicSensor ? this.state.historicSensor.id : "0";
     this.props.datasource.metricFindQueryHelper("channel", sensorId, true).then((response: any) => {
       Object.entries(response).map((responseItem: any) => {
         ChannelSelectableValues.push({
@@ -252,10 +341,10 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   getTableFilterItemsOptions = () => {
-    var filterSelectableValues: SelectableValue[] = [];
+    let filterSelectableValues: SelectableValue[] = [];
     try {
-      var content = this.state.tableOption!;
-      var fromItem = this.state.selectedGroup?.id!;
+      let content = this.state.tableOption!;
+      let fromItem = this.state.selectedGroup?.id!;
       this.props.datasource.metricFindQueryHelper(content, fromItem, true).then((response: any) => {
         Object.entries(response).map((responseItem: any) => {
           filterSelectableValues.push({
@@ -271,7 +360,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   tableFilterOptionsChange = (input: SelectableValue) => {
-    var filterItems: SelectableValue[] = [];
+    let filterItems: SelectableValue[] = [];
     try {
       input.map((inputObj: SelectableValue) => {
         filterItems.push(inputObj);
@@ -286,7 +375,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   tableColumnOptionsChange = (input: SelectableValue) => {
-    var columnItems: SelectableValue[] = [];
+    let columnItems: SelectableValue[] = [];
     try {
       input.map((inputObj: SelectableValue) => {
         columnItems.push(inputObj);
@@ -302,7 +391,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   historicChannelChange = (input: SelectableValue) => {
-    var inputList: SelectableValue[] = [];
+    let inputList: SelectableValue[] = [];
     // inputvalue can be null (if no channels are selected)
     try {
       Object.entries(input).map((inputItem: any) => {
@@ -324,7 +413,7 @@ export class QueryEditor extends PureComponent<Props, State> {
 
   findItemFromCompletionList(label: string, content: string) {
     label = label.substring(0, label.length - 1);
-    var item;
+    let item;
     switch (content) {
       case "group":
         item = this.historicGroupList.find(item => item.label === label);
@@ -365,9 +454,9 @@ export class QueryEditor extends PureComponent<Props, State> {
   }
 
   onTypeahead = async (typeahead: TypeaheadInput, content: string): Promise<TypeaheadOutput> => {
-    var completionItemList: CompletionItem[] = [];
+    let completionItemList: CompletionItem[] = [];
 
-    var parentId = "0";
+    let parentId = "0";
     switch (content) {
       case "device":
         parentId = this.state.selectedGroup?.id!;
@@ -379,7 +468,7 @@ export class QueryEditor extends PureComponent<Props, State> {
         break;
     }
 
-    var datasourceReponse = await this.props.datasource.metricFindQueryHelper(content, parentId, true);
+    let datasourceReponse = await this.props.datasource.metricFindQueryHelper(content, parentId, true);
     Object.entries(datasourceReponse).map((response: any) => {
       completionItemList.push({
         label: response[1].item,
@@ -388,7 +477,7 @@ export class QueryEditor extends PureComponent<Props, State> {
     });
 
     // Adding GrafanaVars as options
-    var dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
+    let dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
     Object.entries(dataSource.templateSrv.variables).map((vari: any) => {
       completionItemList.push({
         detail: vari[1].current.value,
@@ -397,7 +486,7 @@ export class QueryEditor extends PureComponent<Props, State> {
     });
 
 
-    var completionItemGroup: CompletionItemGroup = { label: content, items: completionItemList };
+    let completionItemGroup: CompletionItemGroup = { label: content, items: completionItemList };
 
     switch (content) {
       case "group":
@@ -409,6 +498,11 @@ export class QueryEditor extends PureComponent<Props, State> {
       case "sensor":
         this.historicSensorList = completionItemList;
         break;
+      case "channel":
+        this.historicChannelList = completionItemList;
+        break;
+      case "host":
+        this.hostList = completionItemList;
       default:
         break;
     }
@@ -419,7 +513,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   };
 
   getCascaderVars = (content: string, parent: string) => {
-    var variables: CascaderOption[] = [];
+    let variables: CascaderOption[] = [];
     this.props.datasource.metricFindQueryHelper(content, parent, true).then((responses: any) => {
       Object.entries(responses).map((response: any) => {
         variables.push({
@@ -428,7 +522,7 @@ export class QueryEditor extends PureComponent<Props, State> {
         });
       });
     });
-    var dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
+    let dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
     Object.entries(dataSource.templateSrv.variables).map((vari: any) => {
       variables.push({
         value: vari[1].current.value,
@@ -437,18 +531,84 @@ export class QueryEditor extends PureComponent<Props, State> {
     });
     return variables;
   }
+  // Neue Methoden
+  renderMetricsTable = () => {
+    return (
+      <div className="gf-form-group">
+        <h5>Metrics Options</h5>
+        <table className="filter-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Value</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.metric.propertyList.map((prop, index) => (
+              <tr key={index}>
+                <td>{prop.visible_name}</td>
+                <td>
+                  <Select
+                    value={{ label: prop.visible_name, value: prop.name }}
+                    options={this.getPropertyOptions()}
+                    onChange={(e) => this.onPropertyChange(index, e)}
+                  />
+                </td>
+                <td>
+                  <button className="btn btn-danger btn-small" onClick={() => this.state.method === 'metrics' && this.renderMetricsTable()}>
+                    <i className="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
+  getPropertyOptions = () => {
+    return this.state.metric.propertyList.map(p => ({
+      label: p.visible_name,
+      value: p.name
+    }));
+  };
+
+  onPropertyChange = (index: number, option: SelectableValue) => {
+    const propertyList = [...this.state.metric.propertyList];
+    propertyList[index] = {
+      name: option.value as string,
+      visible_name: option.label as string
+    };
+    this.setState({
+      metric: {
+        ...this.state.metric,
+        propertyList
+      }
+    });
+  };
   render = () => {
     const query = defaults(this.props.query);
     const methodCurrent = methodList.find(item => item.value === query.method);
 
     return (
+      <>
       <div className="gf-form">
-        <Select size={"sm"} options={methodList} value={methodCurrent} onChange={(e: SelectableValue<string>) => (this.onScenarioChange(e))} />
+        <Select
+          size={"sm"}
+          options={methodList}
+          value={methodCurrent}
+          onChange={this.onScenarioChange}
+        />
         <FieldSet>
-          <this.renderFormFields />
+          {this.renderFormFields()}
         </FieldSet>
-      </div>
+        {this.state.method === 'metrics' && this.renderMetricsTable()}
+        
+        </div>
+        <br />
+      </>
     );
   }
 }

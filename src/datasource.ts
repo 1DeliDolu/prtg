@@ -13,7 +13,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getGroups = (params: string) => {
     return this.apiRequest('table', params).then((response: any) => {
-      var groupsData: any[] = [];
+      const groupsData: any[] = [];
       Object.entries(response.data.groups).map((responseItem: any) => {
         groupsData.push({ item: responseItem[1].group, objid: responseItem[1].objid });
       });
@@ -23,7 +23,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getDevices = (params: string) => {
     return this.apiRequest('table', params).then((response: any) => {
-      var deviceData: any[] = [];
+      let deviceData: any[] = [];
       Object.entries(response.data.devices).map((responseItem: any) => {
         deviceData.push({ item: responseItem[1].device, objid: responseItem[1].objid });
       });
@@ -33,7 +33,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getSensors = (params: string) => {
     return this.apiRequest('table', params).then((response: any) => {
-      var sensorData: any[] = [];
+      let sensorData: any[] = [];
       Object.entries(response.data.sensors).map((responseItem: any) => {
         sensorData.push({ item: responseItem[1].sensor, objid: responseItem[1].objid });
       });
@@ -43,7 +43,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getChannels = (params: string) => {
     return this.apiRequest('chartlegend', params).then((response: any) => {
-      var channelData: any[] = [];
+      let channelData: any[] = [];
       Object.entries(response.data.items).map((responseItem: any) => {
         channelData.push({ item: responseItem[1].name, objid: responseItem[1].unit });
       });
@@ -52,11 +52,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   };
 
   getChildrenFrom = (parentId: string, type: string, verbose: boolean) => {
-    var parameters: parameterOptions = {
+    let parameters: parameterOptions = {
       content: type + 's',
       columns: ['objid', type]
     };
-    if (type == 'channel') {
+    if (type === 'channel') {
       parameters = {};
     }
     if (verbose) {
@@ -69,7 +69,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   };
 
   queryParameterBuilder = (parameters: parameterOptions): string => {
-    var query = '';
+    let query = '';
     Object.entries(parameters).map((param: any) => {
       switch (param[0]) {
         case 'sdate':
@@ -114,18 +114,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         return this.getSensors(this.getChildrenFrom(parent, 'sensor', verbose));
       case 'channel':
         return this.getChannels(this.getChildrenFrom(parent, 'channel', verbose));
+      case 'host':
+        return this.getDevices(this.getChildrenFrom(parent, 'host', verbose));
       default:
         return this.getGroups('*');
     }
   };
 
   metricFindQuery(query: string, options: any) {
-    var queryContent: string = query.split(':')[0];
-    var queryParent: string = query.split(':')[1];
-    if (queryParent == '*') {
+    let queryContent: string = query.split(':')[0];
+    let queryParent: string = query.split(':')[1];
+    if (queryParent === '*') {
       queryParent = '0';
     }
-    if (queryParent.charAt(0) == '$') {
+    if (queryParent.charAt(0) === '$') {
       queryParent = this.getCurrentVar(queryParent.substr(1)).value;
     }
     return new Promise<MetricFindValue[]>((resolve, reject) => {
@@ -143,27 +145,27 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   grafDateToPrtgDate = (grafdate: any) => {
-    var grafSplitted: string[] = grafdate._d.toString().split(' ');
-    var monthValue = monthsShortList.find(item => item.MonthName == grafSplitted[1]);
-    var timeReplaced = grafSplitted[4].replace(':', '-');
+    let grafSplitted: string[] = grafdate._d.toString().split(' ');
+    let monthValue = monthsShortList.find(item => item.MonthName === grafSplitted[1]);
+    let timeReplaced = grafSplitted[4].replace(':', '-');
 
-    var prtgDate = `${grafSplitted[3]}-${monthValue?.MonthIndex}-${grafSplitted[2]}-${timeReplaced}`;
+    let prtgDate = `${grafSplitted[3]}-${monthValue?.MonthIndex}-${grafSplitted[2]}-${timeReplaced}`;
     return prtgDate;
   };
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    var dfs: DataFrame[] = [];
-    var _this = this;
+    let dfs: DataFrame[] = [];
+    let _this = this;
 
-    var paramOptions: parameterOptions = {
+    let paramOptions: parameterOptions = {
       sdate: this.grafDateToPrtgDate(options.range?.from),
       edate: this.grafDateToPrtgDate(options.range?.to)
     };
 
-    for (var i = 0; i < options.targets.length; i++) {
+    for (let i = 0; i < options.targets.length; i++) {
       switch (options.targets[i].method) {
         case 'table':
-          var cols: string[] = ['name'];
+          let cols: string[] = ['name'];
           options.targets[i].tableColumnItemList?.map(function (colOption: SelectableValue) {
             cols.push(colOption.label!);
           });
@@ -218,7 +220,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   };
 
   getRawDataframe = (apiResponse: any, target: any): DataFrame => {
-    var fields = Object.entries(apiResponse.data).map(([name, value]: [string, any]) => ({
+    let fields = Object.entries(apiResponse.data).map(([name, value]: [string, any]) => ({
       name,
       values: [value],
       type: FieldType.other
@@ -227,8 +229,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   };
 
   getTableDataframe = (apiResponse: any, target: any): DataFrame => {
-    var requestedFilterItems: string[] = [];
-    var requestedData: any[] = [];
+    let requestedFilterItems: string[] = [];
+    let requestedData: any[] = [];
 
     target.tableFilterItemList.map(function (item: any) {
       requestedFilterItems.push(item.label);
@@ -240,7 +242,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       }
     });
 
-    var fields = [
+    let fields = [
       {
         name: target.tableOption + 's',
         values: requestedData,
@@ -251,18 +253,18 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   };
 
   getHistoricDataframe = (apiResponse: any, target: any): DataFrame => {
-    var requestedData: any = {};
-    var timeList: number[] = [];
+    let requestedData: any = {};
+    let timeList: number[] = [];
 
-    var requestedChannelsObj = target.historicChannelList;
+    let requestedChannelsObj = target.historicChannelList;
     requestedChannelsObj.map(function (requestedChannelsObjItem: any) {
       requestedData[requestedChannelsObjItem['label']] = [];
     });
 
     apiResponse.data.histdata.map((historicData: any) => {
-      var apiDate = historicData.datetime.split(' - ')[0];
-      var apiDateFlipped = `${apiDate.split('/')[1]}/${apiDate.split('/')[0]}/${apiDate.split('/')[2]}`;
-      var correctDate = new Date(apiDateFlipped);
+      let apiDate = historicData.datetime.split(' - ')[0];
+      let apiDateFlipped = `${apiDate.split('/')[1]}/${apiDate.split('/')[0]}/${apiDate.split('/')[2]}`;
+      let correctDate = new Date(apiDateFlipped);
       timeList.push(correctDate.valueOf());
 
       requestedChannelsObj.map((obj: any) => {
@@ -270,7 +272,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       });
     });
 
-    var fields = [
+    let fields = [
       {
         name: 'Time',
         values: timeList,
@@ -280,7 +282,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     for (const [key] of Object.entries(requestedData)) {
       fields.push({
-        name: `${key} ${requestedChannelsObj.find((item: any) => item.label == key).value}`,
+        name: `${key} ${requestedChannelsObj.find((item: any) => item.label === key).value}`,
         values: requestedData[key],
         type: FieldType.number
       });
@@ -288,23 +290,23 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return { fields } as DataFrame;
   };
 
-
+//! TODO schau JSON format
 async apiRequest(method: string, params: string): Promise < ApiResponse > {
-  var apiUrl: string = `https://${settingsData.hostname}/api/${method}.json?username=${settingsData.username}&passhash=${settingsData.passhash}${params}`;
+  let apiUrl: string = `https://${settingsData.hostname}/api/${method}.json?username=${settingsData.username}&passhash=${settingsData.passhash}${params}`;
   const response = await getBackendSrv().fetch({ url: apiUrl, method: 'GET' });
   return response as unknown as ApiResponse;
 }
 
 async apiRequestRaw(method: string, params: string): Promise < ApiResponse > {
-  var apiUrl: string = `https://${settingsData.hostname}/api/${method}?username=${settingsData.username}&passhash=${settingsData.passhash}${params}`;
+  let apiUrl: string = `https://${settingsData.hostname}/api/${method}?username=${settingsData.username}&passhash=${settingsData.passhash}${params}`;
   const response = await getBackendSrv().fetch({ url: apiUrl, method: 'GET' });
   return response as unknown as ApiResponse;
 }
   getCurrentVar(varName: string) {
-    var dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
-    var curVar: any = {};
+    let dataSource: any = getDataSourceSrv() as unknown as DataSourceApi;
+    let curVar: any = {};
     dataSource.templateSrv.variables.map((variable: any) => {
-      if (variable.name == varName) {
+      if (variable.name === varName) {
         curVar = variable.current;
       }
     });
@@ -319,4 +321,5 @@ async apiRequestRaw(method: string, params: string): Promise < ApiResponse > {
     };
   }
 }
+
 
