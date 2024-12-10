@@ -465,6 +465,69 @@ export const messageColumns: SelectableValue[] = [
   }
 ]
 
+export const filterColumns: SelectableValue[] = [
+  {
+    label: "Tags",
+    value: "tags"
+  },
+  {
+    label: "Status",
+    value: "status"
+  },
+  {
+    label: "Priority",
+    value: "priority"
+  },
+  {
+    label: "Mesage",
+    value: "message"
+  },
+  {
+    label: "active",
+    value: "active"
+  }
+]
+/*! TODO PRTG Server
+2. Gerät der Cluster - Probe
+3. PRTG Core Server
+4. AP - EINGANG(AP - HKMS.Eingang)(172.18.2.81)
+5. AP - HALLE(AP - HKMS.Halle)(172.18.2.82)
+6. AP - HKMS.Regie(AP - HKMS.Regie)(172.18.2.83)
+7. UPS.Frauenbergstr.35 1.OG(172.18.2.178)
+*/
+export const hostColumns: SelectableValue[] = [
+  {
+    label: "PRTG Server",
+    value: "PRTG Server"
+  },
+  {
+    label: "Gerät der Cluster - Probe",
+    value: "Gerät der Cluster - Probe"
+  },
+  {
+    label: "PRTG Core Server",
+    value: "PRTG Core Server"
+  },
+  {
+    label: "AP - EINGANG(AP - HKMS.Eingang)(172.18.2.81)",
+    value: "AP - EINGANG(AP - HKMS.Eingang)(172.18.2.81)"
+  },
+  {
+    label: "AP - HALLE(AP - HKMS.Halle)(172.18.2.82)",
+    value: "AP - HALLE(AP - HKMS.Halle)(172.18.2.82)"
+  },
+  {
+    label: "AP - HKMS.Regie(AP - HKMS.Regie)(172.18.2.83)",
+    value: "AP - HKMS.Regie(AP - HKMS.Regie)(172.18.2.83)"
+  },
+  {
+    label: "UPS.Frauenbergstr.35 1.OG(172.18.2.178)",
+    value: "UPS.Frauenbergstr.35 1.OG(172.18.2.178)"
+  }
+
+]
+
+//! TODO END OF COLUMNS
 export interface PrtgQuery extends DataQuery {
   queryMethod: SelectableValue;
   selectedGroup: SelectableValue;
@@ -477,6 +540,94 @@ export interface PrtgQuery extends DataQuery {
   rawURI: string,
   rawQuerytext: string,
 };
+
+
+export const groupList: SelectableValue[] = [
+  {
+    label: "Hauptgruppe",
+    value: "Hauptgruppe"
+  },
+  {
+    label: "USV",
+    value: "USV"
+  },
+  {
+    label: "Wireless",
+    value: "Wireless"
+  },
+  {
+    label: "Oberstadt",
+    value: "Oberstadt"
+  },
+  {
+    label: "Barfüßer Tor",
+    value: "Barfüßer Tor"
+  },
+  {
+    label: "Friedrichstraße",
+    value: "Friedrichstraße"
+  },
+  {
+    label: "Am Krekel",
+    value: "Am Krekel"
+  }
+]
+
+
+export const sensorList: SelectableValue[] = [
+  {
+    label: "Clusterzustand",
+    value: "Clusterzustand"
+  },
+  {
+    label: "Sondenzustand",
+    value: "Sondenzustand"
+  },
+  {
+    label: "Arbeitsspeicher",
+    value: "Arbeitsspeicher"
+  },
+  {
+    label: "Laufwerk",
+    value: "Laufwerk"
+  },
+  {
+    label: "Serverzustand (Autonom)",
+    value: "Serverzustand (Autonom)"
+  },
+  {
+    label: "Ping",
+    value: "Ping"
+  },
+  {
+    label: "Batterie - Kapazität",
+    value: "Batterie - Kapazität"
+  }
+]
+
+/*! TODO valueFrom 
+
+*/
+export const valueFromList: SelectableValue[] = [
+  {
+    label: "Group",
+    value: "Group"
+  },
+  {
+    label: "Device",
+    value: "Device"
+  },
+  {
+    label: "Sensor",
+    value: "Sensor"
+  },
+  {
+    label: "Channel",
+    value: "Channel"
+  }
+]
+
+
 
 export const defaultPrtgQuery: Partial<PrtgQuery> = {
   queryMethod: methodList[0],

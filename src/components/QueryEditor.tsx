@@ -31,8 +31,11 @@ import {
   sensorColumns,
   deviceColumns,
   groupColumns,
-  probeColumns
+  probeColumns,
+  filterColumns
 } from '../types';
+
+//import selectEvent from 'react-select-event';
 
 import { getDataSourceSrv } from '@grafana/runtime';
 
@@ -183,7 +186,7 @@ export class QueryEditor extends PureComponent<Props, State> {
         <Label>URI:</Label>
         <Input onChange={(e: ChangeEvent<HTMLInputElement>) => this.RawURIChange(e.target.value)} value={this.state.rawURI} />
         {/* burdan nasil ikinci satira ekleyebilirim */}
-        <div>g</div>
+        
         <Label>Query Text:</Label>
         <Input onChange={(e: ChangeEvent<HTMLInputElement>) => this.RawQueryTextChange(e.target.value)} value={this.state.rawQueryText} />
       </div>
@@ -594,20 +597,29 @@ export class QueryEditor extends PureComponent<Props, State> {
 
     return (
       <>
-      <div className="gf-form">
-        <Select
+        <div className="gf-form"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between"
+          }}>
+          <div>
+            <Select
+            label="Method"
           size={"sm"}
           options={methodList}
           value={methodCurrent}
           onChange={this.onScenarioChange}
-        />
+          />
+          </div>
+          <div>
         <FieldSet>
           {this.renderFormFields()}
         </FieldSet>
         {this.state.method === 'metrics' && this.renderMetricsTable()}
         
         </div>
-        <br />
+        </div>
       </>
     );
   }
